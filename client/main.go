@@ -1,41 +1,52 @@
 package main
 
 import (
-	"context"
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-
-	"github.com/REXKrash/DISYS2021-REST/client/v2/swagger"
-	sw "github.com/REXKrash/DISYS2021-REST/client/v2/swagger"
 )
 
 func main() {
-
-	runSwaggerLocalhost()
-}
-
-func runSwaggerLocalhost() {
-	var client = swagger.NewAPIClient(swagger.NewConfiguration())
-	var student = swagger.Student{Id: 5, Name: "bob"}
-	resp, err := client.StudentApi.AddStudent(context.WithValue(context.Background(), sw.ContextAccessToken, "ACCESSTOKENSTRING"), student)
-	if err != nil {
-		fmt.Println(err)
-		return
-	} else {
-		r, _ := ioutil.ReadAll(resp.Body)
-		fmt.Println(string(r))
-	}
+	runLocalhost()
 }
 
 func runLocalhost() {
-	resp, err := http.Get("http://localhost:8080/v2/")
+	type Student struct {
+		Id   int64  `json:"id"`
+		Name string `json:"name"`
+	}
+	type Response struct {
+		Message string `json:"message"`
+	}
+	data := Student{
+		Id:   5,
+		Name: "Bob",
+	}
+	studentBytes, err := json.Marshal(data)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	body := bytes.NewReader(studentBytes)
+
+	req, err := http.NewRequest("POST", "http://localhost:8080/v2/student", body)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		fmt.Println(err)
 		return
 	} else {
 		r, _ := ioutil.ReadAll(resp.Body)
-		fmt.Println(string(r))
+		var response Response
+		json.Unmarshal(r, &response)
+		fmt.Println(response.Message)
 	}
 	defer resp.Body.Close()
 }

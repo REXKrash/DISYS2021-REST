@@ -10,12 +10,34 @@
 package swagger
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 )
 
 func AddStudent(w http.ResponseWriter, r *http.Request) {
+	type Response struct {
+		Message string `json:"message"`
+	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
+	w.Header().Add("message", "test")
+	resp, _ := ioutil.ReadAll(r.Body)
+
+	var student Student
+	json.Unmarshal(resp, &student)
+
+	fmt.Println("Adding student: " + student.Name)
+
+	var response = Response{Message: (fmt.Sprint("Added student with id ", student.Id))}
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		return
+	}
+
+	//update response
+	w.Write(jsonResponse)
 }
 
 func DeleteStudent(w http.ResponseWriter, r *http.Request) {
