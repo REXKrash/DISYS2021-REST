@@ -20,7 +20,7 @@ import (
 	//
 	//    sw "github.com/myname/myrepo/go"
 	//
-	sw "./go"
+	sw "github.com/REXKrash/DISYS2021-REST/server/v2/go"
 )
 
 func main() {
