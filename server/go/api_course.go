@@ -10,40 +10,257 @@
 package swagger
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
+var courses []Course
+
 func AddCourse(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	w = writeSucess(w)
+
+	var course = parseCourse(r.Body)
+	fmt.Println("Adding course: " + course.Name)
+	var inArray bool
+	for i := 0; i < len(courses); i++ {
+		if courses[i].Id == course.Id {
+			inArray = true
+			courses[i] = course
+		}
+	}
+	if !inArray {
+		courses = append(courses, course)
+	}
+	json, err := generateJsonReponse(w, fmt.Sprint("Added course with id ", course.Id))
+	fmt.Println("Courses:")
+	fmt.Println("Length of array", len(courses))
+
+	if err != nil {
+		return
+	}
+	w.Write(json)
 }
 
 func DeleteCourse(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	vars := mux.Vars(r)
+	id, ok := vars["courseId"]
+	if !ok {
+		fmt.Println("id is missing in parameters")
+
+		w = writeFail(w)
+		json, err := generateJsonReponse(w, "No id given")
+		if err != nil {
+			return
+		}
+		w.Write(json)
+	}
+
+	fmt.Println("Removing course with id: " + id)
+	var inArray bool
+	numId, _ := strconv.Atoi(id)
+	for i := 0; i < len(courses); i++ {
+
+		if courses[i].Id == int64(numId) {
+			inArray = true
+			courses = remove(courses, i)
+			w = writeSucess(w)
+			json, err := generateJsonReponse(w, fmt.Sprint("Successfully removed course with id ", id))
+			if err != nil {
+				return
+			}
+			w.Write(json)
+		}
+	}
+	if !inArray {
+		w = writeFail(w)
+		json, err := generateJsonReponse(w, fmt.Sprint("No course with id ", id))
+		if err != nil {
+			return
+		}
+		w.Write(json)
+	}
+	fmt.Println("Courses:")
+	fmt.Println("Length of array", len(courses))
+}
+
+func remove(s []Course, i int) []Course {
+	s[i] = s[len(s)-1]
+	return s[:len(s)-1]
 }
 
 func EnrollStudent(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	w = writeSucess(w)
 }
 
 func GetCourseById(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	vars := mux.Vars(r)
+	id, ok := vars["courseId"]
+	if !ok {
+		fmt.Println("id is missing in parameters")
+
+		w = writeFail(w)
+		json, err := generateJsonReponse(w, "No id given")
+		if err != nil {
+			return
+		}
+		w.Write(json)
+	}
+	fmt.Println("Getting course with id", id)
+	var inArray bool
+	numId, _ := strconv.Atoi(id)
+	for i := 0; i < len(courses); i++ {
+
+		if courses[i].Id == int64(numId) {
+			inArray = true
+			course := courses[i]
+			w = writeSucess(w)
+			json, err := json.Marshal(course)
+			fmt.Println(json)
+			if err != nil {
+				return
+			}
+			w.Write(json)
+		}
+	}
+	if !inArray {
+		fmt.Println("No course with id", id)
+		w = writeFail(w)
+		json, err := generateJsonReponse(w, fmt.Sprint("No course with id ", id))
+		if err != nil {
+			return
+		}
+		w.Write(json)
+	}
 }
 
 func RateCourse(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	vars := mux.Vars(r)
+	id, ok := vars["courseId"]
+	if !ok {
+		fmt.Println("id is missing in parameters")
+
+		w = writeFail(w)
+		json, err := generateJsonReponse(w, "No id given")
+		if err != nil {
+			return
+		}
+		w.Write(json)
+	}
+	rating, ok := vars["rating"]
+	if !ok {
+		fmt.Println("rating is missing in parameters")
+
+		w = writeFail(w)
+		json, err := generateJsonReponse(w, "No rating given")
+		if err != nil {
+			return
+		}
+		w.Write(json)
+	}
+
+	var inArray bool
+	numId, _ := strconv.Atoi(id)
+	numRating, _ := strconv.Atoi(id)
+	for i := 0; i < len(courses); i++ {
+
+		if courses[i].Id == int64(numId) {
+			inArray = true
+			course := courses[i]
+
+			course.Rating = int64(numRating)
+			courses[i] = course
+			w = writeSucess(w)
+			json, err := generateJsonReponse(w, fmt.Sprint("Updated rating on course with id", course.Id, "to", rating))
+			if err != nil {
+				return
+			}
+			w.Write(json)
+		}
+	}
+	if !inArray {
+		w = writeFail(w)
+		json, err := generateJsonReponse(w, fmt.Sprint("No course with id ", id))
+		if err != nil {
+			return
+		}
+		w.Write(json)
+	}
+	fmt.Println("Courses:")
+	fmt.Println("Length of array", len(courses))
 }
 
 func UpdateCourse(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	var course = parseCourse(r.Body)
+	fmt.Println("Adding course: " + course.Name)
+	var inArray bool
+	for i := 0; i < len(courses); i++ {
+		if courses[i].Id == course.Id {
+			inArray = true
+			courses[i] = course
+			w = writeSucess(w)
+			json, err := generateJsonReponse(w, fmt.Sprint("Updated course with id ", course.Id))
+			if err != nil {
+				return
+			}
+			w.Write(json)
+		}
+	}
+	if !inArray {
+		w = writeFail(w)
+		json, err := generateJsonReponse(w, fmt.Sprint("No course with id ", course.Id))
+		if err != nil {
+			return
+		}
+		w.Write(json)
+	}
+	fmt.Println("Courses:")
+	fmt.Println("Length of array", len(courses))
+
 }
 
 func UpdateCourseWithId(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	vars := mux.Vars(r)
+	id, ok := vars["courseId"]
+	if !ok {
+		fmt.Println("id is missing in parameters")
+
+		w = writeFail(w)
+		json, err := generateJsonReponse(w, "No id given")
+		if err != nil {
+			return
+		}
+		w.Write(json)
+	}
+
+	var course = parseCourse(r.Body)
+	fmt.Println("Updating course: " + course.Name)
+	var inArray bool
+	numId, _ := strconv.Atoi(id)
+	for i := 0; i < len(courses); i++ {
+
+		if courses[i].Id == int64(numId) {
+			inArray = true
+			courses[i] = course
+			w = writeSucess(w)
+			json, err := generateJsonReponse(w, fmt.Sprint("Updated course with id ", course.Id))
+			if err != nil {
+				return
+			}
+			w.Write(json)
+		}
+	}
+	if !inArray {
+		w = writeFail(w)
+		json, err := generateJsonReponse(w, fmt.Sprint("No course with id ", course.Id))
+		if err != nil {
+			return
+		}
+		w.Write(json)
+	}
+	fmt.Println("Courses:")
+	fmt.Println("Length of array", len(courses))
 }

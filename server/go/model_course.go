@@ -9,8 +9,13 @@
 
 package swagger
 
-type Course struct {
+import (
+	"encoding/json"
+	"io"
+	"io/ioutil"
+)
 
+type Course struct {
 	Id int64 `json:"id"`
 
 	Name string `json:"name"`
@@ -22,4 +27,12 @@ type Course struct {
 	Rating int64 `json:"rating,omitempty"`
 
 	Students []Student `json:"students,omitempty"`
+}
+
+func parseCourse(body io.ReadCloser) Course {
+	resp, _ := ioutil.ReadAll(body)
+
+	var course Course
+	json.Unmarshal(resp, &course)
+	return course
 }

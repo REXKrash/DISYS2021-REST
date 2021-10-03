@@ -10,52 +10,37 @@
 package swagger
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 )
 
 func AddStudent(w http.ResponseWriter, r *http.Request) {
-	type Response struct {
-		Message string `json:"message"`
-	}
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	w.Header().Add("message", "test")
-	resp, _ := ioutil.ReadAll(r.Body)
 
-	var student Student
-	json.Unmarshal(resp, &student)
+	w = writeSucess(w)
 
+	var student = parseStudent(r.Body)
 	fmt.Println("Adding student: " + student.Name)
-
-	var response = Response{Message: (fmt.Sprint("Added student with id ", student.Id))}
-	jsonResponse, err := json.Marshal(response)
+	json, err := generateJsonReponse(w, fmt.Sprint("Added student with id ", student.Id))
 	if err != nil {
 		return
 	}
-
-	//update response
-	w.Write(jsonResponse)
+	w.Write(json)
 }
 
 func DeleteStudent(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	w = writeSucess(w)
 }
 
 func GetStudentById(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	w = writeSucess(w)
 }
 
 func UpdateStudent(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+
+	w = writeSucess(w)
 }
 
 func UpdateStudentWithId(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+
+	w = writeSucess(w)
 }
