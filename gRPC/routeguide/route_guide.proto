@@ -1,0 +1,47 @@
+syntax = "proto3";
+option go_package = "github.com/REXKrash/DISYS2021-REST/gRPC";
+service CourseService {
+  // Sends a Course
+  rpc SetCourse (Course) returns (CourseResponse) {}
+  rpc CreateCourse (Course) returns (CourseResponse) {}
+  rpc GetCourse (CourseID) returns (CourseRequestResponse) {}
+  rpc DeleteCourse (CourseID) returns (CourseResponse) {}
+  rpc SetRatingCourse (CourseRatingChangeRequest)
+    returns (CourseResponse) {}
+  rpc EnrollStudentInCourse (CourseRatingChangeRequest)
+    returns (CourseResponse) {}
+}
+
+message Student {
+  string name = 1;
+  int32 id = 2;
+}
+
+message Course {
+    int32 id = 1;
+    string name = 2;
+    int32 teacherID = 3;
+    int32 ects = 4;
+    optional int32 rating = 5;
+    repeated Student students = 6;
+}
+message CourseID {
+    int32 id = 1;
+}
+message CourseRatingChangeRequest {
+    int32 id = 1;
+    int32 rating = 2;
+}
+message CourseEnrollStudentRequest {
+    int32 id = 1;
+    int32 Student = 2;
+}
+
+message CourseResponse {
+  bool success = 1;
+  optional string messsage = 2;
+}
+message CourseRequestResponse {
+  bool success = 1;
+  Course course = 2;
+}
