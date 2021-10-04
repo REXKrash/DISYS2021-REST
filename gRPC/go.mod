@@ -1,4 +1,4 @@
-module github.com/REXKrash/DISYS2021-REST/gRPC/v2
+module github.com/REXKrash/DISYS2021-REST/gRPC
 
 go 1.17
 
@@ -8,9 +8,9 @@ require (
 )
 
 require (
-	github.com/golang/protobuf v1.5.0 // indirect
-	golang.org/x/net v0.0.0-20200822124328-c89045814202 // indirect
-	golang.org/x/sys v0.0.0-20200323222414-85ca7c5b95cd // indirect
-	golang.org/x/text v0.3.0 // indirect
-	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
+	github.com/golang/protobuf v1.5.2 // indirect
+	golang.org/x/net v0.0.0-20211004164453-cedda3a722dd // indirect
+	golang.org/x/sys v0.0.0-20211004093028-2c5d950f24ef // indirect
+	golang.org/x/text v0.3.7 // indirect
+	google.golang.org/genproto v0.0.0-20211001223012-bfb93cce50d9 // indirect
 )

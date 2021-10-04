@@ -1,5 +1,7 @@
 syntax = "proto3";
+
 option go_package = "github.com/REXKrash/DISYS2021-REST/gRPC";
+
 service CourseService {
   // Sends a Course
   rpc SetCourse (Course) returns (CourseResponse) {}
@@ -39,8 +41,9 @@ message CourseEnrollStudentRequest {
 
 message CourseResponse {
   bool success = 1;
-  optional string messsage = 2;
+  string message = 2;
 }
+
 message CourseRequestResponse {
   bool success = 1;
   Course course = 2;
