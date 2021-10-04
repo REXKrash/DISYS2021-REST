@@ -9,7 +9,18 @@ import (
 	"strconv"
 )
 
+type Response struct {
+	Message string `json:"message"`
+}
+
 func main() {
+
+	student := Student{
+		Id:   5,
+		Name: "Bob",
+	}
+	addStudent(student)
+
 	course1 := Course{
 		Id:   0,
 		Name: "DISYS",
@@ -22,18 +33,11 @@ func main() {
 	}
 	addCourse(course2)
 	getCourse(1)
-	student := Student{
-		Id:   5,
-		Name: "Bob",
-	}
-	addStudent(student)
+	enrollStudent(1, 5)
+	getCourse(1)
 }
 
 func getCourse(id int) {
-	type Response struct {
-		Message string `json:"message"`
-	}
-
 	req, err := http.NewRequest("GET", ("http://localhost:8080/v2/course/" + strconv.Itoa(id)), nil)
 	if err != nil {
 		fmt.Println(err)
@@ -49,16 +53,34 @@ func getCourse(id int) {
 		r, _ := ioutil.ReadAll(resp.Body)
 		var course Course
 		json.Unmarshal(r, &course)
-		fmt.Println(course.Name)
+		fmt.Printf("%#v", course)
+		fmt.Println()
+	}
+	defer resp.Body.Close()
+}
+
+func enrollStudent(courseID int, studentID int) {
+	req, err := http.NewRequest("PUT", ("http://localhost:8080/v2/course/" + strconv.Itoa(courseID) + "/enroll/" + strconv.Itoa(studentID)), nil)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return
+	} else {
+		r, _ := ioutil.ReadAll(resp.Body)
+		var response Response
+		json.Unmarshal(r, &response)
+		fmt.Println(response.Message)
 	}
 	defer resp.Body.Close()
 }
 
 func addCourse(data Course) {
-	type Response struct {
-		Message string `json:"message"`
-	}
-
 	courseBytes, err := json.Marshal(data)
 	if err != nil {
 		fmt.Println(err)
@@ -87,10 +109,6 @@ func addCourse(data Course) {
 }
 
 func addStudent(data Student) {
-	type Response struct {
-		Message string `json:"message"`
-	}
-
 	studentBytes, err := json.Marshal(data)
 	if err != nil {
 		fmt.Println(err)

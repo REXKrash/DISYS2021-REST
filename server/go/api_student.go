@@ -14,12 +14,15 @@ import (
 	"net/http"
 )
 
+var students []Student
+
 func AddStudent(w http.ResponseWriter, r *http.Request) {
 
 	w = writeSucess(w)
 
 	var student = parseStudent(r.Body)
 	fmt.Println("Adding student: " + student.Name)
+	students = append(students, student)
 	json, err := generateJsonReponse(w, fmt.Sprint("Added student with id ", student.Id))
 	if err != nil {
 		return

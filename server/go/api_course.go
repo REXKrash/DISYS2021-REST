@@ -94,6 +94,68 @@ func remove(s []Course, i int) []Course {
 
 func EnrollStudent(w http.ResponseWriter, r *http.Request) {
 	w = writeSucess(w)
+	vars := mux.Vars(r)
+	courseID, ok := vars["courseId"]
+	if !ok {
+		fmt.Println("Course id is missing in parameters")
+
+		w = writeFail(w)
+		json, err := generateJsonReponse(w, "No course id given")
+		if err != nil {
+			return
+		}
+		w.Write(json)
+	}
+	studentID, ok := vars["studentId"]
+	if !ok {
+		fmt.Println("Student id is missing in parameters")
+
+		w = writeFail(w)
+		json, err := generateJsonReponse(w, "No student id given")
+		if err != nil {
+			return
+		}
+		w.Write(json)
+	}
+	numCourseId, _ := strconv.Atoi(courseID)
+	numStudentId, _ := strconv.Atoi(studentID)
+	var student Student
+	for i := 0; i < len(students); i++ {
+		if students[i].Id == int64(numStudentId) {
+			student = students[i]
+		}
+	}
+	if student == (Student{}) {
+		fmt.Println("No student found with id", studentID)
+		w = writeFail(w)
+		json, err := generateJsonReponse(w, fmt.Sprint("No student with id ", studentID))
+		if err != nil {
+			return
+		}
+		w.Write(json)
+	}
+	for i := 0; i < len(courses); i++ {
+
+		if courses[i].Id == int64(numCourseId) {
+			course := courses[i]
+			course.Students = append(course.Students, student)
+			courses[i] = course
+			w = writeSucess(w)
+			json, err := generateJsonReponse(w, fmt.Sprint("Successfully added ", student.Name))
+			if err != nil {
+				return
+			}
+			w.Write(json)
+			return
+		}
+	}
+	fmt.Println("No course found with id", courseID)
+	w = writeFail(w)
+	json, err := generateJsonReponse(w, fmt.Sprint("No course with id ", courseID))
+	if err != nil {
+		return
+	}
+	w.Write(json)
 }
 
 func GetCourseById(w http.ResponseWriter, r *http.Request) {
@@ -119,7 +181,6 @@ func GetCourseById(w http.ResponseWriter, r *http.Request) {
 			course := courses[i]
 			w = writeSucess(w)
 			json, err := json.Marshal(course)
-			fmt.Println(json)
 			if err != nil {
 				return
 			}

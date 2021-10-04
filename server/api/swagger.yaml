@@ -363,7 +363,7 @@ paths:
       - school_auth:
         - "write:courses"
         - "read:courses"
-  /course/{coeIdurs}/enroll/{studentId}:
+  /course/{courseId}/enroll/{studentId}:
     put:
       tags:
       - "course"
